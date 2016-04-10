@@ -102,10 +102,10 @@ namespace WebAPIPlugin
                                 break;
                             case "blocks":
                                 //Get specific block by id
-                                if (request.QueryString.AllKeys.Contains("id"))
+                                if (query.AllKeys.Contains("id"))
                                 {
                                     long id = 0;
-                                    long.TryParse(request.QueryString["id"], out id);
+                                    long.TryParse(query["id"], out id);
                                     var block = (apiBlock.CubeGrid as MyCubeGrid).CubeBlocks.First(b => b.FatBlock?.EntityId == id);
 
                                     if (block != null)
@@ -120,9 +120,9 @@ namespace WebAPIPlugin
                                 }
 
                                 //Get first block matching name
-                                if (request.QueryString.AllKeys.Contains("name"))
+                                if (query.AllKeys.Contains("name"))
                                 {
-                                    string name = request.QueryString["name"];
+                                    string name = query["name"];
                                     var matches = new List<WebTerminalBlock>();
                                     foreach (var block in (apiBlock.CubeGrid as MyCubeGrid).CubeBlocks)
                                     {
@@ -137,9 +137,9 @@ namespace WebAPIPlugin
                                     break;
                                 }
                                 //Find all blocks matching search pattern
-                                if (request.QueryString.AllKeys.Contains("search"))
+                                if (query.AllKeys.Contains("search"))
                                 {
-                                    string name = request.QueryString["search"];
+                                    string name = query["search"];
                                     var matches = new List<WebTerminalBlock>();
                                     foreach (var block in (apiBlock.CubeGrid as MyCubeGrid).CubeBlocks)
                                     {

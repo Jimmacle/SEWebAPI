@@ -1,10 +1,12 @@
 ﻿using Sandbox.Game.Entities;
 using Sandbox.ModAPI;
+using Sandbox.ModAPI.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using VRage.Game.Entity;
+using Gma.QrCodeNet.Encoding;
 
 namespace WebAPIPlugin
 {
@@ -37,8 +39,60 @@ namespace WebAPIPlugin
 
         public static void Add(IMyTextPanel block)
         {
+            block.WritePublicTitle("API Key QR Code");
+            block.WritePrivateTitle("API Key String");
+
+            string black = "";
+            string white = "";
+
             string key = "";
             while (keyDict.ContainsKey(key = Generator.GenerateWeakKey(16))) { }
+
+            //Generate and write QR code.
+            QrEncoder q = new QrEncoder(ErrorCorrectionLevel.H);
+            var code = q.Encode(key);
+
+            if (code != null)
+            {
+                StringBuilder sb = new StringBuilder();
+                var bits = code.Matrix;
+
+                for (int i = 0; i < bits.Width + 2; i++)
+                {
+                    sb.Append(white);
+                }
+                sb.AppendLine();
+
+                for (int i = 0; i < bits.Height; i++)
+                {
+                    sb.Append(white);
+                    for (int j = 0; j < bits.Width; j++)
+                    {
+                        if (bits.InternalArray[i,j])
+                        {
+                            sb.Append(black);
+                        }
+                        else
+                        {
+                            sb.Append(white);
+                        }
+                    }
+                    sb.Append(white);
+                    sb.AppendLine();
+                }
+
+                for (int i = 0; i < bits.Width + 2; i++)
+                {
+                    sb.Append(white);
+                }
+                sb.AppendLine();
+
+                block.WritePublicText(sb.ToString());
+                block.ShowPublicTextOnScreen();
+                block.SetValueFloat("FontSize", 0.5f);
+                block.SetValueColor("FontColor", new VRageMath.Color(120, 0, 0));
+            }
+            
             block.WritePrivateText(key);
             keyDict.Add(key, block.EntityId);
         }
