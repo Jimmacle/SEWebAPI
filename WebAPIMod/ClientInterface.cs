@@ -1,4 +1,5 @@
-﻿using Sandbox.Game.Entities;
+﻿using Sandbox.Common.ObjectBuilders;
+using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Cube;
 using Sandbox.ModAPI;
 using System;
@@ -8,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using VRage.Game.Components;
 using VRage.Game.ModAPI;
+using VRage.ObjectBuilders;
 using VRage.Utils;
 using VRageMath;
 
@@ -84,6 +86,14 @@ namespace WebAPIMod
             {
                 sendToOthers = false;
 
+                if (message.Contains("generate"))
+                {
+                    if (selectedBlock != null)
+                    {
+                        MyAPIGateway.Utilities.ShowMessage("WebAPI", "Key generated, check private text.");
+                        MyAPIGateway.Multiplayer.SendMessageToServer(7331, BitConverter.GetBytes(selectedBlock.EntityId));
+                    }
+                }
                 //TODO: Add commands here.
             }
         }
