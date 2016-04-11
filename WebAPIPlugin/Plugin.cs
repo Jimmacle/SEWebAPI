@@ -1,47 +1,50 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Collections.Specialized;
-using VRage.Plugins;
-using System.Windows.Threading;
-using System.Threading;
+﻿using Newtonsoft.Json;
 using Sandbox;
-using System.Net;
 using Sandbox.Game.Entities;
-using Sandbox.Engine.Multiplayer;
-using Sandbox.ModAPI;
 using Sandbox.Game.Entities.Cube;
-using VRage.Game.Entity;
-using Newtonsoft.Json;
-using TermExtensions = Sandbox.ModAPI.Ingame.TerminalBlockExtentions;
+using Sandbox.ModAPI;
+using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.IO;
+using System.Linq;
+using System.Net;
+using System.Text;
+using System.Threading;
+using VRage.Game;
+using VRage.Game.Entity;
 using VRage.Game.ModAPI;
-using System.Linq.Expressions;
+using VRage.Plugins;
+using Ingame = Sandbox.ModAPI.Ingame;
 
 namespace WebAPIPlugin
 {
     public class Plugin : IPlugin
     {
-        private MySandboxGame gameInstance;
         private Thread webThread;
-        private ConcurrentQueue<HttpListenerContext> requests;
+        private ConcurrentQueue<HttpListenerContext> requests = new ConcurrentQueue<HttpListenerContext>();
         private int rateLimit = 1;
+        private bool init = false;
 
         public void Init(object obj)
         {
-            gameInstance = (MySandboxGame)obj;
+            MySandboxGame.Log.WriteLineAndConsole("Initializing SE Web API (SEWA)");
+            if (MySandboxGame.ConfigDedicated.Mods.Contains(662477070))
+            {
+                APIBlockCache.Load();
 
-            APIBlockCache.Load();
-            requests = new ConcurrentQueue<HttpListenerContext>();
+                webThread = new Thread(new ThreadStart(WebLoop));
+                webThread.Start();
 
-            webThread = new Thread(new ThreadStart(HTTPLoop));
-            webThread.Start();
-
-            MyEntities.OnEntityCreate += MyEntities_OnEntityCreate;
-            MyAPIGateway.Multiplayer.RegisterMessageHandler(7331, MessageHandler);
+                MyEntities.OnEntityCreate += MyEntities_OnEntityCreate;
+                MyAPIGateway.Multiplayer.RegisterMessageHandler(7331, MessageHandler);
+                init = true;
+            }
+            else
+            {
+                MySandboxGame.Log.WriteLineAndConsole("Mod 662477070 is not installed, SEWA won't function without it!");
+            }
         }
 
         private void MessageHandler(byte[] message)
@@ -51,7 +54,6 @@ namespace WebAPIPlugin
 
         private void MyEntities_OnEntityCreate(MyEntity entity)
         {
-            //register api block
             if (entity is MyCubeBlock)
             {
                 if ((entity as IMyCubeBlock).BlockDefinition.SubtypeName == "WebAPI")
@@ -64,7 +66,7 @@ namespace WebAPIPlugin
 
         public void Update()
         {
-            HashSet<MyEntity> entities = MyEntities.GetEntities();
+            if (!init) return;
 
             int i = 0;
             while (!requests.IsEmpty && i < rateLimit)
@@ -92,6 +94,7 @@ namespace WebAPIPlugin
                         }
 
                         MyCubeGrid grid = (MyCubeGrid)apiBlock.CubeGrid;
+                        var gts = MyAPIGateway.TerminalActionsHelper.GetTerminalSystemForGrid(grid);
 
                         uri.RemoveRange(0, 2);
 
@@ -101,120 +104,101 @@ namespace WebAPIPlugin
                                 context.Respond(new WebGrid(apiBlock.CubeGrid as MyCubeGrid), 200);
                                 break;
                             case "blocks":
-                                //Get specific block by id
+                                List<Ingame.IMyTerminalBlock> blocks = new List<Ingame.IMyTerminalBlock>();
+                                gts.GetBlocks(blocks);
+                                var blocksCopy = blocks.ToList();
+
+                                //Filter out blocks not in group.
+                                if (query.AllKeys.Contains("group"))
+                                {
+                                    var group = gts.GetBlockGroupWithName(query["group"]);
+                                    if (group != null)
+                                    {
+                                        foreach (var block in blocksCopy)
+                                        {
+                                            if (!group.Blocks.Contains(block))
+                                            {
+                                                blocks.Remove(block);
+                                            }
+                                        }
+                                    }
+                                }
+
+                                //Filter out blocks that aren't the specified type.
+                                if (query.AllKeys.Contains("type"))
+                                {
+                                    string type = query["type"];
+                                    foreach (var block in blocksCopy)
+                                    {
+                                        if (!block.GetType().ToString().Split('.').Last().Contains(type, StringComparison.InvariantCultureIgnoreCase))
+                                        {
+                                            blocks.Remove(block);
+                                        }
+                                    }
+                                }
+
+                                //Filter out blocks not matching search pattern.
+                                if (query.AllKeys.Contains("search"))
+                                {
+                                    string name = query["search"];
+                                    foreach (var block in blocksCopy)
+                                    {
+                                        if (!block.CustomName.ToString().Contains(name, StringComparison.InvariantCultureIgnoreCase))
+                                        {
+                                            blocks.Remove(block);
+                                        }
+                                    }
+                                }
+
+                                //Get first block matching name.
+                                if (query.AllKeys.Contains("name"))
+                                {
+                                    string name = query["name"];
+                                    var block = blocks.Find(b => b.CustomName.ToString() == name);
+                                    if (block != null)
+                                    {
+                                        blocks = new List<Ingame.IMyTerminalBlock>() { block };
+                                    }
+                                }
+
+                                //Get specific block by id.
                                 if (query.AllKeys.Contains("id"))
                                 {
                                     long id = 0;
                                     long.TryParse(query["id"], out id);
-                                    var block = (apiBlock.CubeGrid as MyCubeGrid).CubeBlocks.First(b => b.FatBlock?.EntityId == id);
+
+                                    var block = blocks.First(b => b.EntityId == id);
 
                                     if (block != null)
                                     {
-                                        context.Respond(new WebTerminalBlock(block.FatBlock as MyTerminalBlock), 200);
+                                        blocks = new List<Ingame.IMyTerminalBlock>() { block };
                                     }
-                                    else
-                                    {
-                                        context.Respond("Block not found", 404);
-                                    }
-                                    break;
                                 }
 
-                                //Get first block matching name
-                                if (query.AllKeys.Contains("name"))
-                                {
-                                    string name = query["name"];
-                                    var matches = new List<WebTerminalBlock>();
-                                    foreach (var block in (apiBlock.CubeGrid as MyCubeGrid).CubeBlocks)
-                                    {
-                                        var terminalBlock = block?.FatBlock as MyTerminalBlock;
-                                        if (terminalBlock != null && terminalBlock.CustomName.ToString() == name)
-                                        {
-                                            context.Respond(new WebTerminalBlock(terminalBlock), 200);
-                                            break;
-                                        }
-                                    }
-                                    context.Respond("Block not found", 404);
-                                    break;
-                                }
-                                //Find all blocks matching search pattern
-                                if (query.AllKeys.Contains("search"))
-                                {
-                                    string name = query["search"];
-                                    var matches = new List<WebTerminalBlock>();
-                                    foreach (var block in (apiBlock.CubeGrid as MyCubeGrid).CubeBlocks)
-                                    {
-                                        var terminalBlock = block?.FatBlock as MyTerminalBlock;
-                                        if (terminalBlock != null && terminalBlock.CustomName.ToString().Contains(name, StringComparison.InvariantCultureIgnoreCase))
-                                        {
-                                            matches.Add(new WebTerminalBlock(terminalBlock));
-                                        }
-                                    }
-                                    context.Respond(matches, 200);
-                                }
+                                List<WebTerminalBlock> responseBlocks = new List<WebTerminalBlock>();
+                                blocks.ForEach(x => responseBlocks.Add(new WebTerminalBlock(x as MyTerminalBlock)));
+
+                                context.Respond(responseBlocks, 200);
                                 break;
                             case "groups":
+                                if (query.AllKeys.Contains("name"))
+                                {
+                                    var group = gts.GetBlockGroupWithName(query["name"]);
+                                    if (group != null)
+                                    {
+                                        var resp = new List<WebTerminalBlock>();
+                                        foreach (var block in group.Blocks)
+                                        {
+                                            resp.Add(new WebTerminalBlock(block as MyTerminalBlock));
+                                        }
+                                        context.Respond(resp, 200);
+                                    }
+                                }
                                 break;
                             default:
                                 context.Respond("Resource not found", 404);
                                 break;
-
-
                         }
-
-                        /*//Begin old/test stuff.
-                        Console.WriteLine("Processing request from " + request.RemoteEndPoint.Address.ToString());
-
-                        MyCubeGrid targetGrid = null;
-                        if (query.AllKeys.Contains("grid"))
-                        {
-                            foreach (var entity in entities)
-                            {
-                                if (entity is MyCubeGrid && entity.DisplayName == query["grid"])
-                                {
-                                    targetGrid = entity as MyCubeGrid;
-                                    break;
-                                }
-                            }
-                        }
-
-                        MyTerminalBlock targetBlock = null;
-                        if (targetGrid != null)
-                        {
-                            if (query.AllKeys.Contains("block"))
-                            {
-                                foreach (var block in targetGrid.CubeBlocks)
-                                {
-                                    if (block?.FatBlock is MyTerminalBlock && (block.FatBlock as MyTerminalBlock).CustomName.ToString() == query["block"])
-                                    {
-                                        targetBlock = block.FatBlock as MyTerminalBlock;
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-
-                        if (query.AllKeys.Contains("action") && targetBlock != null)
-                        {
-                            string action = query["action"];
-                            if (TermExtensions.HasAction(targetBlock, action))
-                            {
-                                TermExtensions.ApplyAction(targetBlock, action);
-                                context.Respond("OK", 200);
-                            }
-                            else
-                            {
-                                context.Respond("Bad Request", 400);
-                            }
-                        }
-
-                        byte[] responseBytes = Encoding.ASCII.GetBytes(responseString);
-
-                        response.ContentLength64 = responseBytes.Length;
-
-                        response.OutputStream.Write(responseBytes, 0, responseBytes.Length);
-                        response.OutputStream.Close();
-                        */
-
                     }
 
                     i++;
@@ -226,18 +210,21 @@ namespace WebAPIPlugin
         {
             APIBlockCache.Save();
 
-            try
+            if (webThread.IsAlive)
             {
-                webThread.Abort();
+                try
+                {
+                    webThread.Abort();
+                }
+                catch (ThreadAbortException) { }
             }
-            catch (ThreadAbortException) { }
         }
 
-        public void HTTPLoop()
+        public void WebLoop()
         {
             var listener = new HttpListener();
-            listener.Start();
             listener.Prefixes.Add("http://*:80/api/");
+            listener.Start();
 
             while (true)
             {
@@ -251,17 +238,13 @@ namespace WebAPIPlugin
     {
         public static void Respond(this HttpListenerContext context, string data, int statusCode)
         {
-            byte[] dataBytes = Encoding.ASCII.GetBytes(data);
             var response = context.Response;
+            response.StatusCode = statusCode;
+            response.ContentLength64 = data.Length * sizeof(char);
 
             TextWriter tw = new StreamWriter(response.OutputStream);
-
-            response.ContentLength64 = dataBytes.Length;
-            response.ContentEncoding = Encoding.ASCII;
-            response.StatusCode = statusCode;
-
-            response.OutputStream.Write(dataBytes, 0, dataBytes.Length);
-            response.OutputStream.Close();
+            tw.Write(data);
+            tw.Close();
         }
 
         public static void Respond(this HttpListenerContext context, object data, int statusCode)
@@ -269,7 +252,12 @@ namespace WebAPIPlugin
             var response = context.Response;
             response.StatusCode = statusCode;
             StreamWriter sw = new StreamWriter(response.OutputStream);
-            JsonSerializer s = JsonSerializer.Create();
+
+            var settings = new JsonSerializerSettings();
+            settings.Formatting = Formatting.Indented;
+            settings.StringEscapeHandling = StringEscapeHandling.Default;
+
+            JsonSerializer s = JsonSerializer.Create(settings);
             s.Serialize(sw, data);
             sw.Close();
         }

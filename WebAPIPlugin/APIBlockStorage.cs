@@ -48,7 +48,11 @@ namespace WebAPIPlugin
             string key = "";
             while (keyDict.ContainsKey(key = Generator.GenerateWeakKey(16))) { }
 
+            block.WritePrivateText(key);
+            keyDict.Add(key, block.EntityId);
+
             //Generate and write QR code.
+            //TODO: Offload this functionality to client mod.
             QrEncoder q = new QrEncoder(ErrorCorrectionLevel.H);
             var code = q.Encode(key);
 
@@ -92,9 +96,6 @@ namespace WebAPIPlugin
                 block.SetValueFloat("FontSize", 0.5f);
                 block.SetValueColor("FontColor", new VRageMath.Color(120, 0, 0));
             }
-            
-            block.WritePrivateText(key);
-            keyDict.Add(key, block.EntityId);
         }
 
         public static void Save()
