@@ -141,9 +141,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="APIBlockCache.cs" />
+    <Compile Include="Extensions.cs" />
     <Compile Include="Plugin.cs" />
     <Compile Include="Generator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="WebHandlers.cs" />
     <Compile Include="WebStructs\WebGrid.cs" />
     <Compile Include="WebStructs\WebPut.cs" />
     <Compile Include="WebStructs\WebPutCollection.cs" />
