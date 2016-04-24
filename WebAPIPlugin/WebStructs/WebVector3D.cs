@@ -7,8 +7,10 @@ namespace WebAPIPlugin
     {
         [JsonProperty("x")]
         public double X;
+
         [JsonProperty("y")]
         public double Y;
+
         [JsonProperty("z")]
         public double Z;
 

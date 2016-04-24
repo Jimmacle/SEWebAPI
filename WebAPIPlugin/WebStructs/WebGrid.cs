@@ -8,10 +8,13 @@ namespace WebAPIPlugin
     {
         [JsonProperty("name")]
         public string Name;
+
         [JsonProperty("blocks")]
         public long BlockCount;
+
         [JsonProperty("pos")]
         public WebVector3D Position;
+
         [JsonProperty("rot")]
         public WebQuatD Rotation;
 

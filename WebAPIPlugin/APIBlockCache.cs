@@ -16,7 +16,7 @@ namespace WebAPIPlugin
 
         public static IMyTextPanel Get(string key)
         {
-            if (key == null)
+            if (string.IsNullOrEmpty(key))
             {
                 return null;
             }

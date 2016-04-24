@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using VRage.Game.Components;
 using VRage.Game.ModAPI;
+using VRage.Game.ModAPI.Interfaces;
 using VRage.ObjectBuilders;
 using VRage.Utils;
 using VRageMath;
@@ -44,7 +45,7 @@ namespace WebAPIMod
                     var targetGrid = MyCubeGrid.GetTargetGrid();
                     if (targetGrid != null)
                     {
-                        var cameraMatrix = MatrixD.Invert(MyAPIGateway.Session.CameraController.GetViewMatrix());
+                        var cameraMatrix = MatrixD.Invert(MyAPIGateway.Session.Camera.ViewMatrix);
 
                         var blockPosition = targetGrid.RayCastBlocks(cameraMatrix.Translation, cameraMatrix.Translation + 15 * cameraMatrix.Forward);
                         if (blockPosition != null)
