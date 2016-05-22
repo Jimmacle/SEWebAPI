@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Sandbox.Game.Entities.Cube;
+using Sandbox.ModAPI;
 using Sandbox.ModAPI.Interfaces;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,7 +21,7 @@ namespace WebAPIPlugin
         [JsonProperty("properties")]
         public Dictionary<string, string> Properties;
 
-        public WebTerminalBlock(MyTerminalBlock block, bool includeProperties = true)
+        public WebTerminalBlock(IMyTerminalBlock block, bool includeProperties = true)
         {
             this.Name = block.CustomName.ToString();
             this.Type = block.GetType().ToString().Split('.').LastOrDefault();

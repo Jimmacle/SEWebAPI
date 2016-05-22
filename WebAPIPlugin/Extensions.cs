@@ -1,7 +1,11 @@
 ﻿using Newtonsoft.Json;
 using Sandbox;
+using Sandbox.Game.Entities;
+using Sandbox.ModAPI.Ingame;
+using System.Collections.Generic;
 using System.Net;
 using System.Text;
+using VRage.Game.ModAPI.Ingame;
 
 namespace WebAPIPlugin
 {
@@ -25,6 +29,19 @@ namespace WebAPIPlugin
             {
                 MySandboxGame.Log.WriteLineAndConsole("SEWA: Error writing stream");
             }
+        }
+
+        public static List<IMyTerminalBlock> GetTerminalBlocks(this IMyCubeGrid grid)
+        {
+            var result = new List<IMyTerminalBlock>();
+            foreach (var block in (grid as MyCubeGrid).CubeBlocks)
+            {
+                if (block?.FatBlock is IMyTerminalBlock)
+                {
+                    result.Add(block.FatBlock as IMyTerminalBlock);
+                }
+            }
+            return result;
         }
     }
 }

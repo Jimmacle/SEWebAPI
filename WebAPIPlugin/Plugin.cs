@@ -1,9 +1,12 @@
 ﻿using Newtonsoft.Json;
 using Sandbox;
+using Sandbox.Common.ObjectBuilders;
 using Sandbox.Game.Entities;
+using Sandbox.Game.Entities.Cube;
 using Sandbox.ModAPI;
 using System;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Net;
 using System.Text;
 using System.Threading;
@@ -16,10 +19,10 @@ namespace WebAPIPlugin
 {
     public sealed class Plugin : IPlugin
     {
-        private Thread webThread;
-        private ConcurrentQueue<HttpListenerContext> requests = new ConcurrentQueue<HttpListenerContext>();
-        private int rateLimit = 1;
+        private int rateLimit = 100;
         private bool init = false;
+
+        private APIServer server = new APIServer("http://*:80/");
 
         public void Init(object obj)
         {
@@ -28,8 +31,17 @@ namespace WebAPIPlugin
             {
                 APIBlockCache.Load();
 
-                webThread = new Thread(new ThreadStart(WebLoop));
-                webThread.Start();
+                //Load API server modules
+                server.Handlers.Add(new GridHandler("*/grid"));
+                server.Handlers.Add(new BlocksHandler("*/blocks"));
+                server.Handlers.Add(new BlockHandler("*/blocks/*"));
+                server.Handlers.Add(new GroupsHandler("*/groups"));
+
+                //TODO: Load extension modules from folder of DLLs
+
+                server.Start();
+
+                MySandboxGame.Log.WriteLineAndConsole($"SEWA: Loaded {server.Handlers.Count} URI handlers");
 
                 MyEntities.OnEntityCreate += MyEntities_OnEntityCreate;
                 MyAPIGateway.Multiplayer.RegisterMessageHandler(7331, MessageHandler);
@@ -62,56 +74,12 @@ namespace WebAPIPlugin
         {
             if (!init) return;
 
-            for (int i = 0; !requests.IsEmpty && i < rateLimit; i++)
-            {
-                HttpListenerContext context;
-                if (requests.TryDequeue(out context))
-                {
-                    if (context.Request.HttpMethod == "PUT")
-                    {
-                        WebHandlers.Put(context);
-                    }
-                    else
-                    {
-                        context.Respond("400 Bad Request", 400);
-                    }
-                }
-            }
+            server.ProcessQueue(rateLimit);
         }
 
         public void Dispose()
         {
             APIBlockCache.Save();
-
-            if (webThread.IsAlive)
-            {
-                try
-                {
-                    webThread.Abort();
-                }
-                catch (ThreadAbortException) { }
-            }
-        }
-
-        public void WebLoop()
-        {
-            var listener = new HttpListener();
-            listener.Prefixes.Add("http://*:80/api/");
-            listener.Start();
-
-            while (true)
-            {
-                var context = listener.GetContext();
-
-                if (context.Request.HttpMethod == "GET")
-                {
-                    Task.Run(() => WebHandlers.Get(context));
-                }
-                else
-                {
-                    requests.Enqueue(context);
-                }
-            }
         }
     }
 }
