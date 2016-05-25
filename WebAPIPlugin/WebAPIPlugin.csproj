@@ -146,6 +146,7 @@
     <Compile Include="APIHandlers\BlocksHandler.cs" />
     <Compile Include="APIHandlers\GridHandler.cs" />
     <Compile Include="APIHandlers\GroupsHandler.cs" />
+    <Compile Include="APIHandlers\InventoryHandler.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="Plugin.cs" />
     <Compile Include="Generator.cs" />

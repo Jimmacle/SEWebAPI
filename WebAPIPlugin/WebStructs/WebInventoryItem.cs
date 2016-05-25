@@ -4,13 +4,20 @@ namespace WebAPIPlugin
 {
     public struct WebInventoryItem
     {
-        [JsonProperty("type")]
-        public string Type;
+        [JsonProperty("name")]
+        public string Name;
 
         [JsonProperty("amount")]
         public float Amount;
 
-        [JsonProperty("mass")]
-        public float Mass;
+        //[JsonProperty("mass")]
+        //public float Mass;
+
+        public WebInventoryItem(string name, float amount)
+        {
+            Name = name;
+            Amount = amount;
+            //Mass = mass;
+        }
     }
 }

@@ -36,6 +36,7 @@ namespace WebAPIPlugin
                 server.Handlers.Add(new BlocksHandler("*/blocks"));
                 server.Handlers.Add(new BlockHandler("*/blocks/*"));
                 server.Handlers.Add(new GroupsHandler("*/groups"));
+                server.Handlers.Add(new InventoryHandler("*/blocks/*/inventory"));
 
                 //TODO: Load extension modules from folder of DLLs
 
@@ -56,6 +57,10 @@ namespace WebAPIPlugin
         private void MessageHandler(byte[] message)
         {
             long entityId = BitConverter.ToInt64(message, 0);
+            var textPanel = MyEntities.GetEntityById(entityId) as IMyTextPanel;
+
+            APIBlockCache.keyDict.Remove(textPanel.GetPrivateText());
+            APIBlockCache.Add(textPanel);
         }
 
         private void MyEntities_OnEntityCreate(MyEntity entity)

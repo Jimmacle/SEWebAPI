@@ -38,7 +38,6 @@ namespace WebAPIPlugin
                 if (contexts.TryDequeue(out context))
                 {
                     var path = context.Request.Url.GetComponents(UriComponents.Path, UriFormat.SafeUnescaped);
-                    Console.WriteLine(path);
                     foreach (var handler in Handlers)
                     {
                         if (handler.CanHandle(path))
