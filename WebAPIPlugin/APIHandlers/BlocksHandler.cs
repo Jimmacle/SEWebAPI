@@ -1,7 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Cube;
-using Sandbox.Game.Gui;
 using Sandbox.ModAPI;
 using Sandbox.ModAPI.Interfaces;
 using System;
@@ -13,7 +12,7 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using VRage.Game.ModAPI;
-using Ingame = Sandbox.ModAPI.Ingame;
+using static Sandbox.ModAPI.Ingame.TerminalBlockExtentions;
 
 namespace WebAPIPlugin
 {
@@ -31,12 +30,12 @@ namespace WebAPIPlugin
                 return;
             }
 
-            var gts = MyAPIGateway.TerminalActionsHelper.GetTerminalSystemForGrid((IMyCubeGrid)block.CubeGrid);
+            var gts = MyAPIGateway.TerminalActionsHelper.GetTerminalSystemForGrid(block.CubeGrid);
             var query = context.Request.QueryString;
             var blocks = block.CubeGrid.GetTerminalBlocks();
-            var matches = new List<Ingame.IMyTerminalBlock>(blocks.Count);
+            var matches = new List<IMyTerminalBlock>(blocks.Count);
 
-            Ingame.IMyBlockGroup group = null;
+            IMyBlockGroup group = null;
             string type = "";
             string search = "";
             string name = "";
@@ -71,7 +70,7 @@ namespace WebAPIPlugin
             //Find blocks that match all supplied filters
             for (int i = 0; i < blocks.Count; i++)
             {
-                var b = blocks[i];
+                var b = blocks[i] as IMyTerminalBlock;
 
                 if (id != 0)
                 {
@@ -80,20 +79,25 @@ namespace WebAPIPlugin
                         matches.Add(b);
                         break;
                     }
-                    else continue;
+
+                    continue;
                 }
 
                 if (name != string.Empty)
                 {
-                    if (b.CustomName.ToString() == name)
+                    if (b.CustomName == name)
                     {
                         matches.Add(b);
                         break;
                     }
-                    else continue;
+
+                    continue;
                 }
 
-                if (group == null || group.Blocks.Contains(b))
+                var groupBlocks = new List<IMyTerminalBlock>();
+                group.GetBlocks(groupBlocks);
+
+                if (group == null || groupBlocks.Contains(b))
                 {
                     if (type == string.Empty || b.GetType().ToString().Split('.').Last().Contains(type, StringComparison.InvariantCultureIgnoreCase))
                     {
@@ -146,7 +150,7 @@ namespace WebAPIPlugin
 
                     if (!string.IsNullOrEmpty(put.Action))
                     {
-                        if (Ingame.TerminalBlockExtentions.HasAction(match, put.Action))
+                        if (match.HasAction(put.Action))
                         {
                             match.ApplyAction(put.Action);
                         }
@@ -175,6 +179,7 @@ namespace WebAPIPlugin
                                     }
                                     break;
                                 case "Color":
+                                    //TODO: implement
                                     break;
                             }
                         }

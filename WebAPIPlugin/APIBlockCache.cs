@@ -46,8 +46,13 @@ namespace WebAPIPlugin
             string black = "";
             string white = "";
 
-            string key = "";
-            while (keyDict.ContainsKey(key = Generator.GenerateWeakKey(16))) { }
+            string key;
+
+            do
+            {
+                key = Generator.GenerateWeakKey(16);
+            }
+            while (keyDict.ContainsKey(key));
 
             block.WritePrivateText(key);
             keyDict.Add(key, block.EntityId);

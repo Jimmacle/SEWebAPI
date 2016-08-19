@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
-using Ingame = Sandbox.ModAPI.Ingame;
 using Sandbox.ModAPI;
 
 namespace WebAPIPlugin
@@ -17,14 +16,17 @@ namespace WebAPIPlugin
         [JsonProperty("blocks")]
         public List<WebTerminalBlock> Blocks;
 
-        public WebBlockGroup(Ingame.IMyBlockGroup group)
+        public WebBlockGroup(IMyBlockGroup group)
         {
             this.Name = group.Name;
 
             this.Blocks = new List<WebTerminalBlock>();
-            foreach (var block in group.Blocks)
+            var groupBlocks = new List<IMyTerminalBlock>();
+            group.GetBlocks(groupBlocks);
+
+            foreach (var block in groupBlocks)
             {
-                Blocks.Add(new WebTerminalBlock(block as IMyTerminalBlock));
+                Blocks.Add(new WebTerminalBlock(block));
             }
         }
     }

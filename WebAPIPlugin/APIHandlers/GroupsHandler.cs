@@ -7,7 +7,6 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using VRage.Game.ModAPI;
-using Ingame = Sandbox.ModAPI.Ingame;
 
 namespace WebAPIPlugin
 {
@@ -25,7 +24,7 @@ namespace WebAPIPlugin
                 return;
             }
 
-            var gts = MyAPIGateway.TerminalActionsHelper.GetTerminalSystemForGrid((IMyCubeGrid)apiBlock.CubeGrid);
+            var gts = MyAPIGateway.TerminalActionsHelper.GetTerminalSystemForGrid(apiBlock.CubeGrid);
             var query = context.Request.QueryString;
 
             if (query.AllKeys.Contains("name"))
@@ -34,10 +33,10 @@ namespace WebAPIPlugin
                 if (bGroup != null)
                 {
                     var resp = new List<WebTerminalBlock>();
-                    foreach (var block in bGroup.Blocks)
-                    {
-                        resp.Add(new WebTerminalBlock(block as MyTerminalBlock));
-                    }
+                    var groupBlocks = new List<IMyTerminalBlock>();
+                    bGroup.GetBlocks(groupBlocks);
+
+                    groupBlocks.ForEach(b => resp.Add(new WebTerminalBlock(b)));
                     context.Respond(resp, 200);
                 }
                 else
@@ -47,7 +46,7 @@ namespace WebAPIPlugin
             }
             else
             {
-                var groups = new List<Ingame.IMyBlockGroup>();
+                var groups = new List<IMyBlockGroup>();
                 gts.GetBlockGroups(groups);
 
                 var collection = new WebBlockGroupCollection();
