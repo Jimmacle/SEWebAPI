@@ -34,6 +34,7 @@ namespace WebAPIPlugin
             var query = context.Request.QueryString;
             var blocks = block.CubeGrid.GetTerminalBlocks();
             var matches = new List<IMyTerminalBlock>(blocks.Count);
+            var groupBlocks = new List<IMyTerminalBlock>();
 
             IMyBlockGroup group = null;
             string type = "";
@@ -45,6 +46,7 @@ namespace WebAPIPlugin
             if (query.AllKeys.Contains("group"))
             {
                 group = gts.GetBlockGroupWithName(query["group"]);
+                group.GetBlocks(groupBlocks);
             }
 
             if (query.AllKeys.Contains("type"))
@@ -68,9 +70,9 @@ namespace WebAPIPlugin
             }
 
             //Find blocks that match all supplied filters
-            for (int i = 0; i < blocks.Count; i++)
+            foreach (var t in blocks)
             {
-                var b = blocks[i] as IMyTerminalBlock;
+                var b = t as IMyTerminalBlock;
 
                 if (id != 0)
                 {
@@ -94,14 +96,11 @@ namespace WebAPIPlugin
                     continue;
                 }
 
-                var groupBlocks = new List<IMyTerminalBlock>();
-                group.GetBlocks(groupBlocks);
-
                 if (group == null || groupBlocks.Contains(b))
                 {
                     if (type == string.Empty || b.GetType().ToString().Split('.').Last().Contains(type, StringComparison.InvariantCultureIgnoreCase))
                     {
-                        if (search == string.Empty || b.CustomName.ToString().Contains(search, StringComparison.InvariantCultureIgnoreCase))
+                        if (search == string.Empty || b.CustomName.Contains(search, StringComparison.InvariantCultureIgnoreCase))
                         {
                             matches.Add(b);
                         }
@@ -126,7 +125,7 @@ namespace WebAPIPlugin
                 return;
             }
 
-            WebPutCollection requests = new WebPutCollection();
+            WebPutCollection requests;
 
             try
             {
@@ -143,9 +142,8 @@ namespace WebAPIPlugin
 
             if (requests.Data != null)
             {
-                for (int i = 0; i < requests.Data.Count; i++)
+                foreach (var put in requests.Data)
                 {
-                    var put = requests.Data[i];
                     var match = blocks.First(b => b.EntityId == put.Id);
 
                     if (!string.IsNullOrEmpty(put.Action))
