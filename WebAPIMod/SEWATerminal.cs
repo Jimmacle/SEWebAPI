@@ -25,7 +25,7 @@ namespace WebAPIMod
 
         private void ControlGetter(IMyTerminalBlock block, List<IMyTerminalControl> controls)
         {
-            if (block.BlockDefinition.SubtypeId == "WebAPI")
+            if (block.BlockDefinition.SubtypeId == "WebAPI" || block.BlockDefinition.SubtypeId == "SmallWebAPI" )
             {
                 //Remove default LCD controls except for the on/off toggles.
                 controls.RemoveAll(x => !(x is IMyTerminalControlOnOffSwitch));
