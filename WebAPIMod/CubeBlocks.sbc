@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <CubeBlocks>
+    <Definition xsi:type="MyObjectBuilder_TextPanelDefinition">
+      <Id>
+        <TypeId>TextPanel</TypeId>
+        <SubtypeId>WebAPI</SubtypeId>
+      </Id>
+      <DisplayName>WebAPI Block</DisplayName>
+      <Icon>Textures\GUI\Icons\Fake.dds</Icon>
+      <CubeSize>Large</CubeSize>
+      <BlockTopology>TriangleMesh</BlockTopology>
+      <Size x="1" y="1" z="1" />
+      <ModelOffset x="0" y="0" z="0" />
+      <Model>Models\Cubes\Large\LCDPanel.mwm</Model>
+      <Components>
+        <Component Subtype="Construction" Count="4" />
+        <Component Subtype="Computer" Count="4" />
+        <Component Subtype="Display" Count="3" />
+      </Components>
+      <CriticalComponent Subtype="Computer" Index="0" />
+      <MountPoints>
+        <MountPoint Side="Front" StartX="0" StartY="0" EndX="1" EndY="1" />
+        <MountPoint Side="Left" StartX="0" StartY="0" EndX="0.1" EndY="1" />
+        <MountPoint Side="Right" StartX="0.9" StartY="0" EndX="1" EndY="1" />
+        <MountPoint Side="Top" StartX="0" StartY="0.9" EndX="1" EndY="1" />
+        <MountPoint Side="Bottom" StartX="0" StartY="0" EndX="1" EndY="0.1" />
+      </MountPoints>
+      <BuildProgressModels>
+        <Model BuildPercentUpperBound="1.00" File="Models\Cubes\small\TextPanel_Construction_1.mwm" />
+      </BuildProgressModels>
+      <BlockPairName>WebAPI</BlockPairName>
+      <MirroringZ>Y</MirroringZ>
+      <EdgeType>Light</EdgeType>
+      <BuildTimeSeconds>3</BuildTimeSeconds>
+      <DamageEffectId>214</DamageEffectId>
+      <DamagedSound>ParticleElectrical</DamagedSound>
+      <ResourceSinkGroup>Utility</ResourceSinkGroup>
+      <RequiredPowerInput>0.00002</RequiredPowerInput>
+    </Definition>
+
+    <Definition xsi:type="MyObjectBuilder_TextPanelDefinition">
+      <Id>
+        <TypeId>TextPanel</TypeId>
+        <SubtypeId>SmallWebAPI</SubtypeId>
+      </Id>
+      <DisplayName>WebAPI Block</DisplayName>
+      <Icon>Textures\GUI\Icons\Fake.dds</Icon>
+      <CubeSize>Small</CubeSize>
+      <BlockTopology>TriangleMesh</BlockTopology>
+      <Size x="1" y="1" z="1" />
+      <ModelOffset x="0" y="0" z="0" />
+      <Model>Models\Cubes\Small\TextPanel.mwm</Model>
+      <Components>
+        <Component Subtype="Construction" Count="4" />
+        <Component Subtype="Computer" Count="4" />
+        <Component Subtype="Display" Count="3" />
+      </Components>
+      <CriticalComponent Subtype="Computer" Index="0" />
+      <MountPoints>
+        <MountPoint Side="Front" StartX="0" StartY="0" EndX="1" EndY="1" />
+        <MountPoint Side="Left" StartX="0" StartY="0" EndX="0.1" EndY="1" />
+        <MountPoint Side="Right" StartX="0.9" StartY="0" EndX="1" EndY="1" />
+        <MountPoint Side="Top" StartX="0" StartY="0.9" EndX="1" EndY="1" />
+        <MountPoint Side="Bottom" StartX="0" StartY="0" EndX="1" EndY="0.1" />
+      </MountPoints>
+      <BuildProgressModels>
+        <Model BuildPercentUpperBound="1.00" File="Models\Cubes\small\TextPanel_Construction_1.mwm" />
+      </BuildProgressModels>
+      <BlockPairName>WebAPI</BlockPairName>
+      <MirroringZ>Y</MirroringZ>
+      <EdgeType>Light</EdgeType>
+      <BuildTimeSeconds>3</BuildTimeSeconds>
+      <DamageEffectId>214</DamageEffectId>
+      <DamagedSound>ParticleElectrical</DamagedSound>
+      <ResourceSinkGroup>Utility</ResourceSinkGroup>
+      <RequiredPowerInput>0.00002</RequiredPowerInput>
+    </Definition>
+
+  </CubeBlocks>
+</Definitions>
