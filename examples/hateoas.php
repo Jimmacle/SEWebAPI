@@ -22,6 +22,9 @@ $context  = stream_context_create( $options );
 $result = file_get_contents( $url, false, $context );
 $grid = json_decode( $result );
 
+print "<table> \n";  ## open big wrapping table
+print "<tr><td valign=\"top\"> \n"; ## left column in the big wrapping table
+
 print "<h2> Grid name: ". $grid->name. "</h2>\n";
 print "Block Count: ". $grid->blocks. "<br/>\n";
 print "Grid <br/> <ul><li>x:". $grid->pos->x."</li> <li>y:". $grid->pos->y."</li> <li>z:".$grid->pos->z. "</li></ul>\n";
@@ -49,6 +52,18 @@ print "<a href=\"".$self."?secretkey=".$secretkey."&request=blocks&type=Gyro\">L
 print "<a href=\"".$self."?secretkey=".$secretkey."&request=blocks&type=program\">List All Programmable Block</a><br />\n";
 print "<a href=\"".$self."?secretkey=".$secretkey."&request=blocks&type=MyGravityGenerator\">List All Gravity Generator</a><br />\n";
 print "<a href=\"".$self."?secretkey=".$secretkey."&request=blocks&type=MyAirVent\">List All Airvents</a><br />\n";
+
+print "<br/> <br/>\n";
+print "Grid Notifications <br/>\n";
+print "<table border=\"1\">\n";
+print "<tr><td> <font color=\"#33ff33\">[O] </font></td> <td> Raw Ore <a href=\"#\" title=\"Details on this notofication are here\">[i]</a> </td> </tr>\n";  ## TODO, a click should take me to edit notify
+print "<tr><td> <font color=\"#33ff33\">[O] </font></td> <td> Ur Ingots </td> </tr>\n";
+print "<tr><td> <font color=\"#ff3333\">[X] </font></td> <td> Bullets Fired?</td> </tr>\n";
+print "<tr><td> <font color=\"#ff9933\">[!] </font></td> <td> Bullets Low?</td> </tr>\n";
+print "<tr><td colspan=\"2\"> <a href=\"#\">Create New Notification ...</a></td> </tr>\n";
+print "</table>\n";
+
+print "</td><td valign=\"top\">\n"; ## close the left bar on the big wrapping table, and open the right one
 
 ## show all blocks in grid
 if ( $_REQUEST['request'] == "blocks" && $_REQUEST['secretkey'] != "" && $_REQUEST['blockID'] == "" ) {
@@ -155,6 +170,7 @@ if ( $_REQUEST['secretkey'] != "" && $_REQUEST['blockID'] != "" && $_REQUEST['re
   displayContents ( $contents );
 
 }
+print "</td></tr> </table>\n";  ## close big wrapping table
 
 function displayBlock ( $block, $self, $secretkey ) {
 
@@ -180,8 +196,8 @@ function displayBlock ( $block, $self, $secretkey ) {
   } else {
     $contentLink = "";
   }
-  print $contentLink;
-  print "<br />\n";
+  print "<tr><td colspan=3>".$contentLink."</td></tr>\n";
+  # print "<br />\n";
 
 }
 
@@ -194,11 +210,13 @@ function displayContents ( $contents ) {
   # print "<ul>\n";
   print "<form action=\"".$self."\">\n";
   print "<table border=\"1\">\n";
-  print "<tr><td><b>Item Name</b></td> <td><b>Amount</b></td> <td><sub>min</sub> <em>/</em> <sup>max</sup><br /></td><td></td>\n";
+  # print "<tr><td><b>Item Name</b></td> <td><b>Amount</b></td> <td><sub>min</sub> <em>/</em> <sup>max</sup><br /></td><td></td>\n";
+  print "<tr><td><b>Item Name</b></td> <td><b>Amount</b></td> <td></td>\n";
   foreach ($contents->data as $item ) {
     # print "<li>". $item->name . " -- ".$item->amount . " </li>\n";
     # print "<tr><td> <input type=\"text\" name=\"item.name\" value=\"". $item->name . "\"> </td> <td>".$item->amount . " </td> </tr>\n";
-    print "<tr><td> ".$item->name. "</td> <td>".$item->amount . "</td> <td><sub>10</sub> <em>/</em> <sup>10,000</sup> </td> <td> <input type=\"checkbox\" name=\"checked\" value=\"".$item->id."\"></tr>\n";
+    # print "<tr><td> ".$item->name. "</td> <td>".$item->amount . "</td> <td><sub>10</sub> <em>/</em> <sup>10,000</sup> </td> <td> <input type=\"checkbox\" name=\"checked\" value=\"".$item->id."\"></tr>\n";
+    print "<tr><td> ".$item->name. "</td> <td>".$item->amount . "</td> <td> <input type=\"checkbox\" name=\"checked\" value=\"".$item->id."\"></tr>\n";
   }
   print "<tr><td colspan=\"4\" align=right><input type=\"submit\" value=\"Merge All\"> - <input type=\"submit\" value=\"Split Checked\"></td></tr>\n";
 
@@ -215,13 +233,13 @@ function displayContents ( $contents ) {
   print "<input type=\"text\" name=\"pullValue\" value=\"100\"> Pull: <input type=\"text\" name=\"pullName\" value=\"Steel Plate\"> <input type=\"submit\" value=\"Pull\">\n";
   print "</td></tr>\n";
 
-  print "<tr><td colspan=\"4\" align=\"right\">\n";
-  print "<input type=\"text\" name=\"notifyValue\" value=\"10\"> notify if: \n";
-  print "<select name=\"notifyType\">\n";
-  print "<option value=\"Under Value\">Under Value</option>\n";
-  print "<option value=\"Over Value\">Over Value</option>\n";
-  print "<input type=\"submit\" value=\"Notify\">\n";
-  print "</td></tr>\n";
+  # print "<tr><td colspan=\"4\" align=\"right\">\n";
+  # print "<input type=\"text\" name=\"notifyValue\" value=\"10\"> notify if: \n";
+  # print "<select name=\"notifyType\">\n";
+  # print "<option value=\"Under Value\">Under Value</option>\n";
+  # print "<option value=\"Over Value\">Over Value</option>\n";
+  # print "<input type=\"submit\" value=\"Notify\">\n";
+  # print "</td></tr>\n";
 
   print "</table>\n";
   # print "</ul>\n";

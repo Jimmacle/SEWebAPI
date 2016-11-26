@@ -1,6 +1,6 @@
 #!/bin/bash
 
-urls=`cat gridUrls.txt | egrep -v '^\#' | egrep -v '^\s*$'`
+urls=`cat gridUrls.conf | egrep -v '^\#' | egrep -v '^\s*$'`
 
 for i in $urls; do
   echo $i;
