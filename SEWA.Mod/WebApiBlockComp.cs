@@ -2,7 +2,7 @@
 using VRage.Game.Components;
 using VRage.ObjectBuilders;
 
-namespace WebAPIMod
+namespace SEWA.Mod
 {
     [MyEntityComponentDescriptor(typeof(MyObjectBuilder_TextPanel))]
     public class WebApiBlockComp : MyGameLogicComponent

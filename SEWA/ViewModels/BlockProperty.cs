@@ -3,6 +3,7 @@ using System.Text;
 using NLog;
 using Sandbox.ModAPI;
 using Sandbox.ModAPI.Interfaces;
+using VRage.Game.ModAPI;
 using VRageMath;
 
 namespace SEWA.ViewModels

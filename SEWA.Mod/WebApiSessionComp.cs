@@ -8,7 +8,7 @@ using VRage.Game.GUI.TextPanel;
 using VRage.ModAPI;
 using VRage.Utils;
 
-namespace WebAPIMod
+namespace SEWA.Mod
 {
     [MySessionComponentDescriptor(MyUpdateOrder.AfterSimulation)]
     public class WebApiSessionComp : MySessionComponentBase
