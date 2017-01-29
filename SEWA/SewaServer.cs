@@ -33,6 +33,8 @@ namespace SEWA
 
             _router.AddRoute("block/{id}", typeof(BlockController));
             _router.AddRoute("grid/{id}", typeof(GridController));
+            _router.AddRoute("block/{id}/{property}", typeof(PropertyController));
+            _router.AddRoute("block/{id}/{action}", typeof(ActionController));
         }
 
         public async Task Run()

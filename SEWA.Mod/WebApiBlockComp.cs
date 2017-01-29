@@ -4,7 +4,7 @@ using VRage.ObjectBuilders;
 
 namespace SEWA.Mod
 {
-    [MyEntityComponentDescriptor(typeof(MyObjectBuilder_TextPanel))]
+    [MyEntityComponentDescriptor(typeof(MyObjectBuilder_TextPanel), true)]
     public class WebApiBlockComp : MyGameLogicComponent
     {
         private MyObjectBuilder_EntityBase _objectBuilder;

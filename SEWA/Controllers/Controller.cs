@@ -12,32 +12,29 @@ namespace SEWA.Controllers
 {
     public abstract class Controller
     {
-        protected ITorchBase Torch { get; }
-        private static readonly Logger Log = LogManager.GetLogger("SEWA");
-        public ValueBag ValueBag;
+        public ITorchBase Torch { get; set; }
+        public ValueBag ValueBag { get; set; }
+        public Request Request { get; set; }
 
-        protected Controller(ITorchBase torchBase)
-        {
-            Torch = torchBase;
-        }
+        protected static readonly Logger Log = LogManager.GetLogger("SEWA");
 
-        public async Task HandleRequestAsync(Request request)
+        public async Task HandleRequestAsync()
         {
             try
             {
-                switch (request.Method.Method)
+                switch (Request.Method.Method)
                 {
                     case "POST":
-                        await PostAsync(request);
+                        await PostAsync();
                         break;
                     case "PUT":
-                        await PutAsync(request);
+                        await PutAsync();
                         break;
                     case "GET":
-                        await GetAsync(request);
+                        await GetAsync();
                         break;
                     case "DELETE":
-                        await DeleteAsync(request);
+                        await DeleteAsync();
                         break;
                 }
             }
@@ -45,28 +42,28 @@ namespace SEWA.Controllers
             {
                 Log.Error("Error handling request.");
                 Log.Error(e);
-                await request.RespondAsync("Internal error.", HttpStatusCode.InternalServerError);
+                await Request.RespondAsync("Internal error.", HttpStatusCode.InternalServerError);
             }
         }
 
-        public virtual async Task GetAsync(Request request)
+        public virtual async Task GetAsync()
         {
-            await request.RespondAsync("", HttpStatusCode.NotImplemented);
+            await Request.RespondAsync("", HttpStatusCode.NotImplemented);
         }
 
-        public virtual async Task PutAsync(Request request)
+        public virtual async Task PutAsync()
         {
-            await request.RespondAsync("", HttpStatusCode.NotImplemented);
+            await Request.RespondAsync("", HttpStatusCode.NotImplemented);
         }
 
-        public virtual async Task PostAsync(Request request)
+        public virtual async Task PostAsync()
         {
-            await request.RespondAsync("", HttpStatusCode.NotImplemented);
+            await Request.RespondAsync("", HttpStatusCode.NotImplemented);
         }
 
-        public virtual async Task DeleteAsync(Request request)
+        public virtual async Task DeleteAsync()
         {
-            await request.RespondAsync("", HttpStatusCode.NotImplemented);
+            await Request.RespondAsync("", HttpStatusCode.NotImplemented);
         }
     }
 }

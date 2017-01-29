@@ -43,8 +43,10 @@ namespace SEWA
 
             if (_routes.ContainsKey(request.PathSegments))
             {
-                var controller = (Controller)Activator.CreateInstance(_routes[request.PathSegments], _torch);
-                await controller.HandleRequestAsync(request);
+                var controller = (Controller)Activator.CreateInstance(_routes[request.PathSegments]);
+                controller.Torch = _torch;
+                controller.Request = request;
+                await controller.HandleRequestAsync();
                 return;
             }
 
@@ -72,9 +74,11 @@ namespace SEWA
             }
 
             _log.Info($"Using controller {bestType}");
-            var bestController = (Controller)Activator.CreateInstance(bestType, _torch);
+            var bestController = (Controller)Activator.CreateInstance(bestType);
+            bestController.Torch = _torch;
             bestController.ValueBag = MakeBag(bestRoute, request.PathSegments);
-            await bestController.HandleRequestAsync(request);
+            bestController.Request = request;
+            await bestController.HandleRequestAsync();
         }
 
         /// <summary>

@@ -22,6 +22,7 @@ namespace SEWA
         public NameValueCollection QueryString { get; }
         public HttpMethod Method { get; }
         public string ApiKey { get; }
+        public string Content { get; }
 
         public Request(HttpListenerContext context)
         {
@@ -30,6 +31,7 @@ namespace SEWA
             QueryString = context.Request.QueryString;
             Method = new HttpMethod(context.Request.HttpMethod);
             ApiKey = context.Request.Headers.Get("ApiKey") ?? "";
+            Content = context.Request.InputStream.ReadString();
         }
 
         public async Task RespondAsync(object responseObject, HttpStatusCode statusCode)
@@ -50,7 +52,7 @@ namespace SEWA
                 response.OutputStream.Close();
             });
             sw.Stop();
-            _log.Info($"Serialization/response took {sw.Elapsed.TotalMilliseconds}ms");
+            _log.Debug($"Serialization/response took {sw.Elapsed.TotalMilliseconds}ms");
         }
     }
 }

@@ -34,18 +34,20 @@ namespace SEWA.ViewModels
             if (light)
                 return;
 
-            if (block.HasInventory())
+            if (block.HasInventory)
             {
-                var count = block.GetInventoryCount();
+                var count = block.InventoryCount;
                 for (var i = 0; i < count; i++)
                 {
-                    Inventories.Add(new Inventory((IMyInventory)block.GetInventory(i)));
+                    Inventories.Add(new Inventory(block.GetInventory(i)));
                 }
             }
 
             block.GetProperties(new List<ITerminalProperty>(), p =>
             {
-                Properties.Add(new BlockProperty(p, block));
+                var prop = new BlockProperty(p, block);
+                if (prop.IsValid)
+                    Properties.Add(prop);
                 return false;
             });
 

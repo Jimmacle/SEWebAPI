@@ -15,16 +15,14 @@ namespace SEWA.Controllers
 {
     public class GridController : Controller
     {
-        public GridController(ITorchBase torch) : base(torch) { }
-
         /// <inheritdoc />
-        public override async Task GetAsync(Request request)
+        public override async Task GetAsync()
         {
             long id = 0;
             //if (!long.TryParse(request.PathSegments.Last(), out id))
             if (!ValueBag.TryGet("id", out id))
             {
-                await request.RespondAsync("Invalid grid ID", HttpStatusCode.BadRequest);
+                await Request.RespondAsync("Invalid grid ID", HttpStatusCode.BadRequest);
                 return;
             }
 
@@ -38,11 +36,11 @@ namespace SEWA.Controllers
 
             if (grid != null)
             {
-                await request.RespondAsync(grid, HttpStatusCode.OK);
+                await Request.RespondAsync(grid, HttpStatusCode.OK);
                 return;
             }
 
-            await request.RespondAsync("Grid not found", HttpStatusCode.NotFound);
+            await Request.RespondAsync("Grid not found", HttpStatusCode.NotFound);
         }
     }
 }

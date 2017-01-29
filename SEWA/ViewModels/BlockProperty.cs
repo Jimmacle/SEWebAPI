@@ -15,6 +15,7 @@ namespace SEWA.ViewModels
         public string Name { get; }
         public string Type { get; }
         public object Value { get; }
+        public bool IsValid { get; } = true;
 
         public BlockProperty(ITerminalProperty property, IMyTerminalBlock block)
         {
@@ -40,6 +41,7 @@ namespace SEWA.ViewModels
                     Value = getValueMethod.Invoke(property, new object[] { block });
                 }
 #else
+                IsValid = false;
                 Log.Warn($"Property {Type} not supported");
 #endif
             }

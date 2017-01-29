@@ -14,16 +14,14 @@ namespace SEWA.Controllers
 {
     public class BlockController : Controller
     {
-        public BlockController(ITorchBase torch) : base(torch) { }
-
         /// <inheritdoc />
-        public override async Task GetAsync(Request request)
+        public override async Task GetAsync()
         {
             long id = 0;
             //if (!long.TryParse(request.PathSegments.Last(), out id))
             if (!ValueBag.TryGet("id", out id))
             {
-                await request.RespondAsync("Invalid block ID", HttpStatusCode.BadRequest);
+                await Request.RespondAsync("Invalid block ID", HttpStatusCode.BadRequest);
                 return;
             }
 
@@ -37,11 +35,11 @@ namespace SEWA.Controllers
 
             if (block != null)
             {
-                await request.RespondAsync(block, HttpStatusCode.OK);
+                await Request.RespondAsync(block, HttpStatusCode.OK);
                 return;
             }
 
-            await request.RespondAsync("Block not found", HttpStatusCode.NotFound);
+            await Request.RespondAsync("Block not found", HttpStatusCode.NotFound);
         }
     }
 }

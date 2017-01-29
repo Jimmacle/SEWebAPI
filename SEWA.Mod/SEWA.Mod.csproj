@@ -7,8 +7,8 @@
     <ProjectGuid>{9AF96577-1525-412A-971C-B6780D10D23F}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>WebAPIMod</RootNamespace>
-    <AssemblyName>WebAPIMod</AssemblyName>
+    <RootNamespace>SEWA.Mod</RootNamespace>
+    <AssemblyName>SEWA.Mod</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
